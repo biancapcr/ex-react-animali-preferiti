@@ -6,6 +6,7 @@
     <title>I miei animali Preferiti</title>
     <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
     <header>
       <h1>I miei animali Preferiti</h1>
@@ -16,7 +17,7 @@
         <img src="https://picsum.photos/400/300" alt="Immagine Casuale" />
       </figure>
 
-      <!-- mount react -->
+      <!-- mount componente react -->
       <div class="lista-animali"></div>
     </main>
 
@@ -24,33 +25,67 @@
       <p>Creato con amore da... un collega sbadato! 🐾</p>
     </footer>
 
-    <!-- react in modalità diretta -->
+    <!-- react + reactDOM (modalità diretta con CDN) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- babel (trasformare il JSX in JS comprensibile dal browser) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- codice react -->
+    <!-- codice react (JSX) -->
     <script type="text/babel">
-      function AnimalsList() {
-        // array statico — M1
-        const animals = ["Cane", "Gatto", "Opossum", "Procione"];
+      // importazione useState dall’oggetto react
+      const { useState } = React;
+
+      // array di scelta per aggiungere un animale casuale
+      const animalsChoices = ["Cane", "Gatto", "Procione", "Volpe", "Opossum"];
+
+      // componente principale (Milestone 2)
+      function AnimalsApp() {
+        // stato della lista animali: parte vuota
+        const [animals, setAnimals] = useState([]);
+
+        // funzione che aggiunge un animale casuale
+        const addRandomAnimal = () => {
+          // genera un indice casuale
+          const randomIndex = Math.floor(Math.random() * animalsChoices.length);
+
+          // prende l’animale dall’array
+          const selectedAnimal = animalsChoices[randomIndex];
+
+          // aggiorna lo stato aggiungendo l’animale alla lista
+          setAnimals([...animals, selectedAnimal]);
+        };
 
         return (
-          <details>
-            <summary>Animali</summary>
+          <>
+            {/* bottone per aggiungere un animale casuale */}
+            <button onClick={addRandomAnimal}>Aggiungi Animale</button>
 
-            <ul>
-              {animals.map((animal, index) => (
-                <li key={index}>{animal}</li>
-              ))}
-            </ul>
-          </details>
+            {/* details espandibile */}
+            <details>
+              <summary>Animali ({animals.length})</summary>
+
+              {/* se la lista è vuota, mostra un messaggio */}
+              {animals.length === 0 ? (
+                <p>Nessun animale ancora. Clicca il pulsante!</p>
+              ) : (
+                // altrimenti mostra la lista
+                <ul>
+                  {animals.map((animal, index) => (
+                    <li key={index}>{animal}</li>
+                  ))}
+                </ul>
+              )}
+            </details>
+          </>
         );
       }
 
-      const container = document.querySelector(".lista-animali");
-      const root = ReactDOM.createRoot(container);
-      root.render(<AnimalsList />);
+      // monta componente react nel DOM
+      const container = document.querySelector(".lista-animali"); // seleziona il div
+      const root = ReactDOM.createRoot(container); // crea root react
+      root.render(<AnimalsApp />); // renderizza il componente
     </script>
   </body>
 </html>
