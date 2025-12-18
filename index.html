@@ -14,7 +14,10 @@
 
     <main>
       <figure>
-        <img src="https://picsum.photos/400/300" alt="Immagine Casuale" />
+        <img
+          src="https://i.pinimg.com/736x/b7/0f/db/b70fdbed72aab2127f8b97f1b007b980.jpg"
+          alt="racc"
+        />
       </figure>
 
       <!-- mount componente react -->
@@ -25,52 +28,97 @@
       <p>Creato con amore da... un collega sbadato! 🐾</p>
     </footer>
 
-    <!-- react + reactDOM (modalità diretta con CDN) -->
+    <!-- react in modalità diretta -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <!-- babel (trasformare il JSX in JS comprensibile dal browser) -->
+    <!-- babel (per poter usare JSX in un file HTML) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- codice react (JSX) -->
     <script type="text/babel">
-      // importazione useState dall’oggetto react
       const { useState } = React;
 
-      // array di scelta per aggiungere un animale casuale
-      const animalsChoices = ["Cane", "Gatto", "Procione", "Volpe", "Opossum"];
+      /* ===== componente modal con portal ==== */
+      function Modal({
+        title,
+        content,
+        show = false,
+        onClose = () => {},
+        onConfirm = () => {},
+      }) {
+        if (!show) return null;
 
-      // componente principale (Milestone 2)
+        return ReactDOM.createPortal(
+          <div className="modal-container">
+            <div className="modal">
+              {title && <h2>{title}</h2>}
+
+              <div className="modal-body">
+                {typeof content === "string" ? <p>{content}</p> : content}
+              </div>
+
+              <div className="modal-actions">
+                <button onClick={onClose}>Annulla</button>
+                <button onClick={onConfirm}>Conferma</button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        );
+      }
+
+      /* ==== componente principale (app)====*/
       function AnimalsApp() {
-        // stato della lista animali: parte vuota
         const [animals, setAnimals] = useState([]);
 
-        // funzione che aggiunge un animale casuale
-        const addRandomAnimal = () => {
-          // genera un indice casuale
-          const randomIndex = Math.floor(Math.random() * animalsChoices.length);
+        // stato modal
+        const [isModalOpen, setIsModalOpen] = useState(false);
 
-          // prende l’animale dall’array
-          const selectedAnimal = animalsChoices[randomIndex];
+        // input dell’utente dentro la modal
+        const [animalName, setAnimalName] = useState("");
 
-          // aggiorna lo stato aggiungendo l’animale alla lista
-          setAnimals([...animals, selectedAnimal]);
+        // apri modal
+        const openModal = () => {
+          setAnimalName("");
+          setIsModalOpen(true);
         };
+
+        // chiudi modal
+        const closeModal = () => setIsModalOpen(false);
+
+        // conferma aggiunta animale
+        const confirmAddAnimal = () => {
+          if (animalName.trim() !== "") {
+            setAnimals([...animals, animalName.trim()]);
+          }
+          closeModal();
+        };
+
+        // ciò che inseriamo come "content" nella modal
+        const modalContent = (
+          <div>
+            <label>Nome animale:</label>
+            <input
+              type="text"
+              value={animalName}
+              onChange={(e) => setAnimalName(e.target.value)}
+              placeholder="Es: Cane, Gatto..."
+            />
+          </div>
+        );
 
         return (
           <>
-            {/* bottone per aggiungere un animale casuale */}
-            <button onClick={addRandomAnimal}>Aggiungi Animale</button>
+            {/* bottone che apre la modal */}
+            <button onClick={openModal}>Aggiungi Animale</button>
 
-            {/* details espandibile */}
+            {/* lista animali */}
             <details>
               <summary>Animali ({animals.length})</summary>
 
-              {/* se la lista è vuota, mostra un messaggio */}
               {animals.length === 0 ? (
-                <p>Nessun animale ancora. Clicca il pulsante!</p>
+                <p>Nessun animale ancora. Aggiungine uno!</p>
               ) : (
-                // altrimenti mostra la lista
                 <ul>
                   {animals.map((animal, index) => (
                     <li key={index}>{animal}</li>
@@ -78,14 +126,23 @@
                 </ul>
               )}
             </details>
+
+            {/* modal */}
+            <Modal
+              title="Aggiungi un animale"
+              content={modalContent}
+              show={isModalOpen}
+              onClose={closeModal}
+              onConfirm={confirmAddAnimal}
+            />
           </>
         );
       }
 
-      // monta componente react nel DOM
-      const container = document.querySelector(".lista-animali"); // seleziona il div
-      const root = ReactDOM.createRoot(container); // crea root react
-      root.render(<AnimalsApp />); // renderizza il componente
+      /* ==== mount di react nel DOM ====*/
+      const container = document.querySelector(".lista-animali");
+      const root = ReactDOM.createRoot(container);
+      root.render(<AnimalsApp />);
     </script>
   </body>
 </html>
